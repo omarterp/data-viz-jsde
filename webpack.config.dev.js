@@ -3,9 +3,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 
 export default {
-  debug: true,
   devtool: 'inline-source-map',
-  noInfo: false,
   entry: [
     path.resolve(__dirname, 'src/index')
   ],
