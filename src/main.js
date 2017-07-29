@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+var d3 = require('d3');
 
 window.initMap = function() {
   let mapCanvas = document.getElementById("map");
