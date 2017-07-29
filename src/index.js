@@ -16,6 +16,15 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/map.js', function(req, res) {
+  res.sendFile(__dirname + '/map.js');
+});
+
+app.get('/index.css', function(req, res) {
+  res.sendFile(__dirname + '/index.css');
+});
+
+
 app.listen(app.get('port'), function() {
   /*eslint-disable no-console*/
   console.log("Node app is running at localhost:" + app.get('port'));
