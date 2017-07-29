@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import open from 'open';
 import webpack from 'webpack';
-import config from '../webpack.config.dev.js';
+import config from '../webpack.config.js';
 
 /*eslint-disable no-console*/
 
@@ -15,18 +15,34 @@ app.use(require('webpack-dev-middleware')(compiler, {
   publicPath: config.output.publicPath
 }));
 
-app.get('/', function(req, res){
-  res.sendFile(path.join(__dirname, '../src/index.html'))
+// Landing Page
+app.get('/', function(req, res) {
+  res.sendFile(path.resolve('src/index.html'));
 });
 
-app.get('/users', function(req, res) {
-  // Hard coding for simplicity.  Pretend this hits a real database
-  res.json([
-    {"id": 1, "firstName": "Bob", "lastName": "Smith", "email": "bob@gmail.com"},
-    {"id": 1, "firstName": "Tammy", "lastName": "Norton", "email": "tnorton@yahoo.com"},
-    {"id": 1, "firstName": "Tina", "lastName": "Lee", "email": "tlee@hotmail.com"}
-  ])
+// Map
+app.get('/main.js', function(req, res) {
+  res.sendFile(path.resolve('src/main.js'));
 });
+
+// Data
+app.get('/stations_2014', function(req, res) {
+  res.sendFile(path.resolve('data/stations_2014.json'));
+});
+
+// Styles
+app.get('/index.css', function(req, res) {
+  res.sendFile(path.resolve('styles/index.css'));
+});
+
+app.get('/styles/js/packs/light.js', function(req, res) {
+  res.sendFile(path.resolve('styles/js/packs/light.js'));
+});
+
+app.get('/styles/js/fontawesome.js', function(req, res) {
+  res.sendFile(path.resolve('styles/js/fontawesome.js'));
+});
+
 
 app.listen(port, function(err){
   if(err) {

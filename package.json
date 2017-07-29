@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "JavaScript development environment Pluralsight course by Cory House",
   "scripts": {
-    "start": "babel-node src/index.js",
+    "start": "npm-run-all --parallel open:src",
     "start-local": "npm-run-all --parallel security-check open:src lint:watch test:watch start-mockapi",
     "open:src": "babel-node buildScripts/srcServer.js",
     "lint": "esw webpack.config.* src buildScripts  --color",
@@ -25,9 +25,11 @@
   "license": "MIT",
   "dependencies": {
     "aphrodite": "^1.2.3",
-    "cors": "^2.8.4"
+    "cors": "^2.8.4",
+    "d3": "^4.10.0"
   },
   "devDependencies": {
+    "babel": "^6.23.0",
     "babel-cli": "6.16.0",
     "babel-core": "6.17.0",
     "babel-loader": "6.2.5",
@@ -62,8 +64,7 @@
     "webpack-dev-middleware": "^1.11.0",
     "webpack-dev-server": "^2.6.1",
     "webpack-md5-hash": "0.0.5",
-    "whatwg-fetch": "^2.0.3",
-    "react": "^15.6.1"
+    "whatwg-fetch": "^2.0.3"
   },
   "engines": {
     "node": "8.1.4"
