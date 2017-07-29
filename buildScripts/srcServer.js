@@ -2,7 +2,7 @@ var express = require('express');
 var path = require('path');
 var open = require('open');
 var webpack = require('webpack');
-var config = require('../webpack.config.js');
+var config = require(path.resolve('webpack.config.js'));
 
 /*eslint-disable no-console*/
 
