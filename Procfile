@@ -1,1 +1,1 @@
-web: node buildScripts/srcServer.js
+web: node index.js
