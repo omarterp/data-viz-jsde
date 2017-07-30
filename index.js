@@ -23,7 +23,7 @@ app.get('/main.js', function(req, res) {
 });
 
 // Data
-app.get('/stations_2014', function(req, res) {
+app.get('/data/stations_2014', function(req, res) {
   res.sendFile(__dirname + '/data/stations_2014.json');
 });
 
@@ -38,6 +38,10 @@ app.get('/styles/js/packs/light.js', function(req, res) {
 
 app.get('/styles/js/fontawesome.js', function(req, res) {
   res.sendFile(__dirname + '/styles/js/fontawesome.js')
+});
+
+app.get('/bundle.js', function(req, res) {
+  res.sendFile(__dirname + '/src/bundle.js')
 });
 
 app.listen(app.get('port'), function() {
