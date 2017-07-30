@@ -23,8 +23,20 @@ app.get('/main.js', function(req, res) {
 });
 
 // Data
+app.get('/data/stations_2013', function(req, res) {
+  res.sendFile(__dirname + '/data/stations_2013.csv');
+});
 app.get('/data/stations_2014', function(req, res) {
-  res.sendFile(__dirname + '/data/stations_2014.json');
+  res.sendFile(__dirname + '/data/stations_2014.csv');
+});
+app.get('/data/stations_2015', function(req, res) {
+  res.sendFile(__dirname + '/data/stations_2015.csv');
+});
+app.get('/data/stations_2016', function(req, res) {
+  res.sendFile(__dirname + '/data/stations_2016.csv');
+});
+app.get('/data/stations_all', function(req, res) {
+  res.sendFile(__dirname + '/data/stations_all.csv');
 });
 
 // Styles
