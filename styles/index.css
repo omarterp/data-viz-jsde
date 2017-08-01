@@ -61,7 +61,7 @@ body {
   display: none;
 }
 
-div.tooltip {
+.tooltip {
   background-color: #fff8dc;
   padding: 7px;
   text-shadow: #f5f5f5 0 1px 0;
