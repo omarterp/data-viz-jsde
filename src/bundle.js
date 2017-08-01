@@ -17445,7 +17445,7 @@ function setMarkers(g, period) {
   const path = d3.geoPath()
     .projection(projection);
 
-  const tooltip = d3.select('#map').append('div')
+  const tooltip = d3.select('#tooltip')
     .attr('class', 'hidden tooltip');
 
   const svg = d3.selectAll('#map');
@@ -17466,7 +17466,7 @@ function setMarkers(g, period) {
               return parseInt(d)
             });
             tooltip.classed('hidden', false)
-              .attr('style', 'left:' + (mouse[0] + 10) + 'px; top:' + mouse[1] - 20 + 'px')
+              .attr('style', 'left:' + (mouse[0] + 10) + 'px; top:' + (mouse[1] - 20) + 'px; position:absolute;')
               .html(d.properties.station_name);
           })
           .on('mouseout', function() {
