@@ -1,7 +1,58 @@
-body {
-  font-family: SansSerif
+
+html, body {
+  padding: 0;
+  margin: 0;
 }
 
-table th {
-  padding: 5px;
+.axis path, .axis line {
+  fill: none;
+  stroke: #eee;
+  shape-rendering: crispEdges
+}
+
+.axis text {
+  font-size: 11px
+}
+
+.bar {
+  fill: steelblue;
+  stroke: red;
+}
+
+.bar:hover {
+  fill: grey;
+}
+
+body {
+  background-color: whitesmoke;
+  margin: 0;
+}
+
+#chart {
+  width: 50%;
+  height: 100%;
+  position: absolute;
+}
+
+#map {
+  width: 50%;
+  height: 100%;
+  position: absolute;
+}
+
+.points {
+  fill: lightslategray;
+  size: 1pt;
+}
+
+.button {
+  margin-left: 20px;
+  margin-top: 20px;
+}
+
+.zips {
+  stroke: steelblue;
+  stroke-width: 1px;
+  fill: #e5e5e5;
+  opacity: 0.25;
 }

@@ -1,126 +1,148 @@
 var d3 = require('d3');
+var topojson = require('topojson-client');
 
-window.initMap = function() {
-  // stations = loadData();
+window.init = function() {
 
-  let mapCanvas = document.getElementById("map");
-  let myCenter = new google.maps.LatLng(40.7326, -73.9582);
-  let mapOptions = {
-    center: myCenter,
-    zoom: 12,
-    mapTypeId: 'terrain'
-  };
-  let map = new google.maps.Map(mapCanvas, mapOptions);
+  // Draw Map which will sit behind the points.
+  const g = drawMap();
 
-  setMarkers(map, period = 'all');
+  // set markers - pass in period
+  setMarkers(g, 'all');
 }
 
-// function loadData() {
-//   let data_set = []
-//   stations_2013 = d3.csv('/data/stations_2013', function(err, data) {
-//     if(err) throw err;
-//   });
-//
-//   stations_2014 = d3.csv('/data/stations_2014', function(err, data) {
-//     if(err) throw err;
-//   });
-//
-//   stations_2015 = d3.csv('/data/stations_2015', function(err, data) {
-//     if(err) throw err;
-//   });
-//
-//   stations_2016 = d3.csv('/data/stations_2016', function(err, data) {
-//     if(err) throw err;
-//   });
-//
-// }
+function setMarkers(g, period) {
 
-function setMarkers(map, period) {
+  const margin = {top: 50, right: 20, bottom: 50, left: 100},
+    width = parseInt(d3.select('#map').style('width')) - margin.left - margin.right,
+    height = parseInt(d3.select('#map').style('height')) - margin.top - margin.bottom;
 
-  // d3.queue()
-  //   .defer(d3.csv, '/data/stations_2013')
-  //   .defer(d3.csv, '/data/stations_2014')
-  //   .defer(d3.csv, '/data/stations_2015')
-  //   .defer(d3.csv, '/data/stations_2016')
-  //   .defer(d3.csv, '/data/stations_all')
-  //   .await(assignData);
-  //
-  // function assignData(error, stations_2013, stations_2014, stations_2015, stations_2016, stations_all) {
-  //   if(error) throw error;
-  //
-  //   stations2013 = stations_2013;
-  //   stations2014 = stations_2014;
-  //   stations2015 = stations_2015;
-  //   stations2016 = stations_2016;
-  //   stationsAll = stations_all;
-  // }
+  const projection = d3.geoMercator()
+    .center([-73.94, 40.70])
+    .scale(50000)
+    .translate([width / 2, height / 2]);
 
+  const path = d3.geoPath()
+    .projection(projection);
 
+  // Draw points
   switch (period) {
     case 'all':
-      d3.csv('/data/stations_all', function (data) {
-        createCharts(data);
-        data.forEach(function(d) {
-          //console.log(d.station_id);
-          applyMarker(map, d.station_id,d.station_name, d.station_lat, d.station_long);
-          //d["land area"] = +d["land area"];
-          return;
-        });
+      d3.json('/data/stations_all_topo', function (error, topo) {
 
-        // console.log(data);
-        // applyMarker(map, data.station_id,data.station_name, data.station_lat, data.station_long);
-        // console.log(data.station_id);
-        // console.log(data.station_name);
-        // console.log(data.station_lat);
-        // console.log(data.station_long);
-        // console.log(data.total_rides);
+        g.selectAll('.points')
+          .data(topojson.feature(topo, topo.objects.stations).features)
+          .enter()
+          .append('path')
+          .attr('class', 'points')
+          .attr('d', path.pointRadius(2));
+
+
+        defaultBarChart();
       });
   }
 }
 
-function createCharts(data) {
+function defaultBarChart() {
+
+  d3.csv('/data/stations_all', function (data) {
+
+    const yearRideCount = d3.nest()
+      .key(d => d.ride_year)
+      .rollup(d => parseInt(d3.sum(d, leaf => leaf.total_rides)))
+      .entries(data);
+
+    yearRideCount[0].num_stations = 1000;
+
+    const margin = {top: 50, right: 20, bottom: 50, left: 100},
+      width = parseInt(d3.select('#chart').style('width')) - margin.left - margin.right,
+      height = parseInt(d3.select('#chart').style('height')) - margin.top - margin.bottom;
+
+
+    const chart = d3.select('#chart')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .attr('transform', 'translate(' + window.innerWidth / 2 + ',' + margin.top + ')');
+
+    const x = d3.scaleBand()
+      .domain(yearRideCount.map(d => d.key))
+      .rangeRound([50, width - 50])
+      .padding(0.1);
+
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(yearRideCount, d => d.value)])
+      .range([height - 50, 0]);
+
+    const xAxis = d3.axisBottom().scale(x);
+    const yAxis = d3.axisLeft().scale(y).tickFormat(function(d) {return d/10000 + 'K'});
+
+    chart.append('g')
+      .attr('class', 'axis')
+      .attr('transform', `translate(0, ${height - 50})`)
+      .call(xAxis);
+
+    chart.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(50, 0)')
+      .call(yAxis);
+
+    chart.selectAll('rect')
+      .data(yearRideCount)
+      .enter()
+      .append('rect')
+      .attr('class', 'bar')
+      .attr('x', d => x(d.key))
+      .attr('y', d => height - 50)
+      .attr('width', x.bandwidth())
+      .transition()
+        .delay((d, i) => i * 20)
+        .duration(800)
+        .attr('y', d => y(d.value))
+        .attr('height', d => (height - 50) - y(d.value));
+  });
 
 }
 
-function applyMarker(map, station_id, station_name, station_lat, station_long) {
+function drawMap() {
 
-  // Adds markers to the map.
+  const margin = {top: 50, right: 20, bottom: 50, left: 100},
+    width = parseInt(d3.select('#map').style('width')) - margin.left - margin.right,
+    height = parseInt(d3.select('#map').style('height')) - margin.top - margin.bottom;
 
-  // console.log(station_id)
-  // console.log(station_name)
-  // console.log(station_lat)
-  // console.log(station_long)
+  const map = d3.select('#map')
+    .attr('width', width + margin.left + margin.right)
+    .attr('height', height + margin.top + margin.bottom);
 
-  // Marker sizes are expressed as a Size of X,Y where the origin of the image
-  // (0,0) is located in the top left of the image.
+  const projection = d3.geoMercator()
+    .center([-73.94, 40.70])
+    .scale(50000)
+    .translate([width / 2, height / 2]);
 
-  // Origins, anchor positions and coordinates of the marker increase in the X
-  // direction to the right and in the Y direction down.
-  // var image = {
-  //   url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
-  //   // This marker is 20 pixels wide by 32 pixels high.
-  //   size: new google.maps.Size(20, 32),
-  //   // The origin for this image is (0, 0).
-  //   origin: new google.maps.Point(0, 0),
-  //   // The anchor for this image is the base of the flagpole at (0, 32).
-  //   anchor: new google.maps.Point(0, 32)
-  // };
-  // Shapes define the clickable region of the icon. The type defines an HTML
-  // <area> element 'poly' which traces out a polygon as a series of X,Y points.
-  // The final coordinate closes the poly by connecting to the first coordinate.
-  // var shape = {
-  //   coords: [1, 1, 1, 20, 18, 20, 18, 1],
-  //   type: 'poly'
-  // };
-  //   var beach = beaches[i];
-  //   var marker =
-    new google.maps.Marker({
-      position: {lat: parseFloat(station_lat), lng: parseFloat(station_long)},
-      map: map,
-      icon: icons['info'].icon,
-      // shape: shape,
-      title: station_name,
-      zIndex: parseFloat(station_id)
+  const path = d3.geoPath()
+    .projection(projection);
+
+  const zoom = d3.zoom()
+    .scaleExtent([1/4, 7])
+    .on('zoom', function () {
+      d3.select('g').attr('transform', d3.event.transform)
     });
-}
 
+  const svg = d3.select('#map')
+    .attr('width', width)
+    .attr('height', height)
+    .call(zoom);
+
+  // Return svg group to be used for markers
+  const g = svg.append('g');
+
+  d3.json('/data/nyc-zip-polys', function(error, topo) {
+
+    g.selectAll('.zips')
+      .data(topojson.feature(topo, topo.objects.nyc).features)
+      .enter()
+      .append('path')
+      .attr('class', 'zips')
+      .attr('d', path);
+  });
+
+  return g;
+}
