@@ -17444,6 +17444,11 @@ function setMarkers(g, period) {
   const path = d3.geoPath()
     .projection(projection);
 
+  const tooltip = d3.select('#map').append('div')
+    .attr('class', 'hidden tooltip');
+
+  const svg = d3.selectAll('#map');
+
   // Draw points
   switch (period) {
     case 'all':
@@ -17454,7 +17459,18 @@ function setMarkers(g, period) {
           .enter()
           .append('path')
           .attr('class', 'points')
-          .attr('d', path.pointRadius(2));
+          .attr('d', path.pointRadius(1))
+          .on('mousemove', function(d) {
+            var mouse = d3.mouse(svg.node()).map(function(d) {
+              return parseInt(d)
+            });
+            tooltip.classed('hidden', false)
+              .attr('style', 'left:' + (mouse[0] + 10) + 'px; top:' + mouse[1] - 20 + 'px')
+              .html(d.properties.station_name);
+          })
+          .on('mouseout', function() {
+            tooltip.classed('hidden', true);
+          });
 
 
         defaultBarChart();
@@ -17541,10 +17557,12 @@ function drawMap() {
     .projection(projection);
 
   const zoom = d3.zoom()
-    .scaleExtent([1/4, 7])
+    .scaleExtent([1, 10])
     .on('zoom', function () {
       d3.select('g').attr('transform', d3.event.transform)
     });
+
+  zoom.scaleExtent([1, Math.min(width, height)]);
 
   const svg = d3.select('#map')
     .attr('width', width)
@@ -17563,6 +17581,13 @@ function drawMap() {
       .attr('class', 'zips')
       .attr('d', path);
   });
+
+  // Gratuitous intro zoom!
+  svg.call(zoom).transition()
+    .duration(1500)
+    // .call(zoom.transform, d3.zoomIdentity
+    //   .scale(width / .5)
+    //   .translate(.5, 0));
 
   return g;
 }
