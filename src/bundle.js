@@ -17428,6 +17428,7 @@ window.init = function() {
 
   // set markers - pass in period
   setMarkers(g, 'all');
+
 }
 
 function setMarkers(g, period) {
@@ -17559,7 +17560,7 @@ function drawMap() {
   const zoom = d3.zoom()
     .scaleExtent([1, 10])
     .on('zoom', function () {
-      d3.select('g').attr('transform', d3.event.transform)
+      d3.select("#transform_g").attr('transform', d3.event.transform)
     });
 
   zoom.scaleExtent([1, Math.min(width, height)]);
@@ -17569,12 +17570,16 @@ function drawMap() {
     .attr('height', height)
     .call(zoom);
 
-  // Return svg group to be used for markers
-  const g = svg.append('g');
+  // group for overall transformed map; encloses other g layers
+  const transform_g = svg.append('g').attr("id","transform_g");
+  // group for polys
+  const poly_g = transform_g.append('g').attr('id','poly_g');
+  // group for markers, on top
+  const marker_g = transform_g.append('g').attr('id','marker_g');
 
   d3.json('/data/nyc-zip-polys', function(error, topo) {
 
-    g.selectAll('.zips')
+    poly_g.selectAll('.zips')
       .data(topojson.feature(topo, topo.objects.nyc).features)
       .enter()
       .append('path')
@@ -17589,7 +17594,8 @@ function drawMap() {
     //   .scale(width / .5)
     //   .translate(.5, 0));
 
-  return g;
+    // return the marker group
+  return marker_g;
 }
 
 },{"d3":1,"topojson-client":2}]},{},[3]);
