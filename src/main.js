@@ -18,7 +18,7 @@ function setMarkers(g, period) {
 
   const projection = d3.geoMercator()
     .center([-73.94, 40.70])
-    .scale(50000)
+    .scale(65000)
     .translate([width / 2, height / 2]);
 
   const path = d3.geoPath()
@@ -130,7 +130,7 @@ function drawMap() {
 
   const projection = d3.geoMercator()
     .center([-73.94, 40.70])
-    .scale(50000)
+    .scale(65000)
     .translate([width / 2, height / 2]);
 
   const path = d3.geoPath()
