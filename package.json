@@ -8,7 +8,6 @@
   "author": "Cory House",
   "license": "MIT",
   "dependencies": {
-    "aphrodite": "^1.2.3",
     "babel-cli": "^6.24.1",
     "browserify": "^14.4.0",
     "cors": "^2.8.4",
