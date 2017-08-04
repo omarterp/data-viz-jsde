@@ -216,36 +216,4 @@ function drawMap() {
 }
 
 function renderLegend(marker_g, valueRange) {
-
-  const colorScale = d3.scaleSequential(COLOR_SCHEME);
-  colorScale.domain([0, d3.max(valueRange, function(d) { return d.count; })]);
-
-  const legend = marker_g.selectAll('#map-legend')
-    .data(colorScale.ticks(6).slice(1).reverse())
-    //.enter()
-    //.append('g')
-    .attr('class', 'legend')
-    .attr('x', window.innerWidth / 4 - 50)
-    .attr('y', window.innerHeight / 3);
-    //.attr('transform', function(d, i) { return `translate(${(window.innerWidth / 2) + 200}, ${(window.innerHeight / 2) + 200})`; });
-
-  // marker_g.selectAll('rect')
-  //   .data(colorScale.ticks(6).slice(1).reverse())
-  //   .enter()
-  marker_g.selectAll('rect')
-    .data(colorScale.ticks(6).slice(1).reverse())
-    .enter()
-    .append('rect')
-    .attr('width', 20)
-    .attr('height', 20)
-    .attr('x', window.innerWidth / 4 - 50)
-    .attr('y', window.innerHeight / 3 + 50)
-    .style('fill', colorScale);
-
-  marker_g.append('text')
-    .attr('class', 'label')
-    .attr('x', window.innerWidth / 4 - 50)
-    .attr('y', window.innerHeight / 3)
-    .attr('dy', '.25em')
-    .text('Total Rides');
 }
