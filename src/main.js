@@ -53,10 +53,14 @@ function setMarkers(marker_g, period) {
           totalRides.push(element.properties.total_rides);
         });
 
-        console.log(totalRides);
+        // const colorScale = d3.scaleSequential(COLOR_SCHEME)
+        //   .domain([0, d3.max(totalRides)]);
 
-        const colorScale = d3.scaleSequential(COLOR_SCHEME)
-          .domain([0, d3.max(totalRides)]);
+        const colorScale = d3.scaleLinear()
+          .domain([0, d3.max(totalRides)])
+          .range(['#eff3ff', '#3182bd', '#08519c'])
+
+        renderLegend(marker_g, totalRides);
 
         marker_g.selectAll('.points')
           .data(topojson.feature(topo, topo.objects.stations).features)
@@ -100,7 +104,7 @@ function drawAllBarChart() {
 
     const margin = {top: 50, right: 20, bottom: 50, left: 50},
       width = parseInt(d3.select('#chart').style('width')) - margin.left - margin.right,
-      height = parseInt(d3.select('#chart').style('height')) - margin.top - margin.bottom;
+      height = parseInt(d3.select('#chart').style('height'));
 
 
     const chart = d3.select('#chart')
@@ -193,6 +197,8 @@ function drawMap() {
   const poly_g = transform_g.append('g').attr('id','poly_g');
   // group for markers, on top
   const marker_g = transform_g.append('g').attr('id','marker_g');
+  // group for legend, on top
+  const legend_g = transform_g.append('g').attr('id','legend_g');
 
   d3.json('/data/nyc-zip-polys', function(error, topo) {
 
@@ -216,4 +222,44 @@ function drawMap() {
 }
 
 function renderLegend(marker_g, valueRange) {
+
+  // const colorScale = d3.scaleSequential(COLOR_SCHEME)
+  //   .domain([0, d3.max(valueRange, function(d) { return d.count; })]);
+
+  const colorScale = d3.scaleLinear()
+    .domain([0, d3.max(valueRange)])
+    .range(['#bdd7e7', '#6baed6', '#3182bd', '#08519c'])
+
+  //console.log(colorScale.ticks(6).slice(1).reverse())
+
+  const legend = d3.select('#legend_g')
+    .data(colorScale.ticks(6).slice(1).reverse())
+    .enter()
+    .append('rect')
+    .attr('height', 100 / 6)
+    .attr('width', 10)
+    .attr('class', 'legend')
+    .attr('x', window.innerWidth / 4 - 50)
+    .attr('y', window.innerHeight / 3);
+
+  // marker_g.selectAll('rect')
+  //   .data(colorScale.ticks(6).slice(1).reverse())
+  //   .enter()
+  // marker_g.selectAll('rect')
+  //   .data(colorScale.ticks(6).slice(1).reverse())
+  //   .enter()
+  //   .append('rect')
+  //   .attr('width', 20)
+  //   .attr('height', 20)
+  //   .attr('x', window.innerWidth / 4 - 50)
+  //   .attr('y', window.innerHeight / 3 + 50)
+  //   .style('fill', colorScale);
+
+  legend.append('text')
+    .attr('class', 'label')
+    .attr('x', window.innerWidth / 4 - 50)
+    .attr('y', window.innerHeight / 3)
+    .attr('dy', '.25em')
+    .text('Total Rides');
+
 }
