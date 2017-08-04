@@ -11,8 +11,10 @@
     "aphrodite": "^1.2.3",
     "babel-cli": "^6.24.1",
     "browserify": "^14.4.0",
+    "colorbrewer": "^1.0.0",
     "cors": "^2.8.4",
     "d3": "^4.10.0",
+    "d3-scale-chromatic": "^1.1.1",
     "express": "^4.15.3",
     "topojson-client": "^3.0.0"
   },

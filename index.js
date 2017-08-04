@@ -39,7 +39,7 @@ app.get('/data/stations_all', function(req, res) {
   res.sendFile(__dirname + '/data/stations_all.csv');
 });
 app.get('/data/stations_all_topo', function(req, res) {
-  res.sendFile(__dirname + '/data/stations_all.topojson');
+    res.sendFile(__dirname + '/data/stations_all.topojson');
 });
 app.get('/data/nyc-zip-polys', function(req, res) {
   res.sendFile(__dirname + '/data/nyc.topojson');
