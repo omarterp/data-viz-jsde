@@ -18993,9 +18993,9 @@ function setMarkers(marker_g, period) {
 
         const colorScale = d3.scaleLinear()
           .domain([0, d3.max(totalRides)])
-          .range(['#eff3ff', '#3182bd', '#08519c'])
+          .range(['#eff3ff', '#3182bd', '#6baed6', '#08519c'])
 
-        renderLegend(marker_g, totalRides);
+        renderLegend(totalRides);
 
         marker_g.selectAll('.points')
           .data(topojson.feature(topo, topo.objects.stations).features)
@@ -19034,8 +19034,6 @@ function drawAllBarChart() {
       .key(d => d.ride_year)
       .rollup(d => parseInt(d3.sum(d, leaf => leaf.total_rides)))
       .entries(data);
-
-    yearRideCount[0].num_stations = 1000;
 
     const margin = {top: 50, right: 20, bottom: 50, left: 50},
       width = parseInt(d3.select('#chart').style('width')) - margin.left - margin.right,
@@ -19156,46 +19154,48 @@ function drawMap() {
   return marker_g;
 }
 
-function renderLegend(marker_g, valueRange) {
-
-  // const colorScale = d3.scaleSequential(COLOR_SCHEME)
-  //   .domain([0, d3.max(valueRange, function(d) { return d.count; })]);
+function renderLegend(valueRange) {
 
   const colorScale = d3.scaleLinear()
     .domain([0, d3.max(valueRange)])
     .range(['#bdd7e7', '#6baed6', '#3182bd', '#08519c'])
 
-  //console.log(colorScale.ticks(6).slice(1).reverse())
+  const legend_g = d3.select('legend_g');
 
-  const legend = d3.select('#legend_g')
-    .data(colorScale.ticks(6).slice(1).reverse())
-    .enter()
-    .append('rect')
-    .attr('height', 100 / 6)
-    .attr('width', 10)
-    .attr('class', 'legend')
-    .attr('x', window.innerWidth / 4 - 50)
-    .attr('y', window.innerHeight / 3);
+  const gradient = legend_g.append('linearGradient')
+    .attr('id', 'gradient')
+    .attr('x1', '0%')
+    .attr('x2', '0%')
+    .attr('y1', '100%')
+    .attr('y2', '0%');
 
-  // marker_g.selectAll('rect')
-  //   .data(colorScale.ticks(6).slice(1).reverse())
-  //   .enter()
-  // marker_g.selectAll('rect')
-  //   .data(colorScale.ticks(6).slice(1).reverse())
-  //   .enter()
-  //   .append('rect')
-  //   .attr('width', 20)
-  //   .attr('height', 20)
-  //   .attr('x', window.innerWidth / 4 - 50)
-  //   .attr('y', window.innerHeight / 3 + 50)
-  //   .style('fill', colorScale);
+  gradient.append('stop')
+    .attr('offset', '0%')
+    .attr('stop-color', '#bdd7e7')
+    .attr('stop-opacity', 1);
 
-  legend.append('text')
-    .attr('class', 'label')
+  gradient.append('stop')
+    .attr('offset', '100%')
+    .attr('stop-color', '#08519c')
+    .attr('stop-opacity', 1);
+
+  legend_g.append('rect')
     .attr('x', window.innerWidth / 4 - 50)
     .attr('y', window.innerHeight / 3)
-    .attr('dy', '.25em')
-    .text('Total Rides');
+    .attr('width', 22)
+    .attr('height', 100)
+    .attr('fill', 'url(#gradient)');
+
+  legend_g.insert('g', '.ticks-group')
+    .attr('class', 'ticks')
+    .attr('transform', 'translate(' + 40 + ', 0)')
+    .selectAll('ticks')
+    .data(d3.ticks(0, d3.max(valueRange), 4))
+    .enter()
+    .append('text')
+    .attr('y', colorScale)
+    .text(function(d) { return d; })
+
 }
 
 },{"d3":4,"d3-scale-chromatic":3,"topojson-client":5}]},{},[6]);
