@@ -17,6 +17,10 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/src/index.html');
 });
 
+app.get('/test', function(req, res) {
+  res.sendFile(__dirname + '/src/test.html');
+});
+
 // Map
 app.get('/main.js', function(req, res) {
   res.sendFile(__dirname + '/src/main.js');

@@ -42,12 +42,17 @@ function setMarkers(marker_g, period) {
   switch (period) {
 
     case 'all':
+
+      document.getElementById("btn-all").style.border = "inset red";
+
       d3.json('/data/stations_all_topo', function (error, topo) {
 
         // Derive scale for points styling
         const topoFeatures = topojson.feature(topo, topo.objects.stations).features;
 
         let totalRides = [];
+        let medianAge = [];
+        let medianTrip = [];
         // Aggregate Scale Values
         topoFeatures.forEach(function(element) {
           totalRides.push(element.properties.total_rides);
@@ -77,7 +82,9 @@ function setMarkers(marker_g, period) {
               .attr('style', 'left:' + (mouse[0] + 10) + 'px; top:' + (mouse[1] - 20) + 'px; position:absolute;')
               .html('station name :  ' + d.properties.station_name +
                 '<hr>' +
-                'total rides : ' + d.properties.total_rides
+                'median ride duration : ' + d.properties.median_trip_duration + ' min. <br>' +
+                'total rides : ' + d.properties.total_rides + '<br>' +
+                'median age: ' + d.properties.median_age
               );
           })
           .on('mouseout', function() {
@@ -120,7 +127,7 @@ function drawAllBarChart() {
       .range([height - 50, 0]);
 
     const xAxis = d3.axisBottom().scale(x);
-    const yAxis = d3.axisLeft().scale(y).tickFormat(function(d) {return d/10000 + 'K'})
+    const yAxis = d3.axisLeft().scale(y).tickFormat(function(d) {return d/10000 + 'k'})
 
     chart.append('g')
       .attr('class', 'axis')
@@ -155,6 +162,11 @@ function drawAllBarChart() {
         .attr('y', d => y(d.value))
         .attr('height', d => (height - 50) - y(d.value));
   });
+
+}
+
+function drawHistogram() {
+
 
 }
 
@@ -221,44 +233,57 @@ function drawMap() {
 
 function renderLegend(valueRange) {
 
-  const colorScale = d3.scaleLinear()
+  const legendWidth = 10,
+    legendHeight = 50,
+    margin = {top: 10, bottom: 10, left: 10, right: 20};
+
+  const legendScale = d3.scaleLinear()
     .domain([0, d3.max(valueRange)])
-    .range(['#bdd7e7', '#6baed6', '#3182bd', '#08519c']);
+    .range([1, legendHeight]);
 
-  const legend_g = d3.select('legend_g');
+  // legend axis
+  const legendAxis = d3.axisRight()
+    .scale(legendScale)
+    .tickSize(2)
+    .tickFormat(function(d) {return d/1000 + 'k'})
+    .ticks(2);
 
-  const gradient = legend_g.append('linearGradient')
+  const legend_g = d3.select('#legend_g')
+    .style('position', 'absolute');
+
+  const gradient = legend_g
+    .append('linearGradient')
     .attr('id', 'gradient')
     .attr('x1', '0%')
     .attr('x2', '0%')
     .attr('y1', '100%')
     .attr('y2', '0%');
 
+  // configure gradient scale
   gradient.append('stop')
     .attr('offset', '0%')
-    .attr('stop-color', '#bdd7e7')
-    .attr('stop-opacity', 1);
-
-  gradient.append('stop')
-    .attr('offset', '100%')
     .attr('stop-color', '#08519c')
     .attr('stop-opacity', 1);
 
-  legend_g.append('rect')
+  gradient
+    .append('stop')
+    .attr('offset', '100%')
+    .attr('stop-color', '#eff3ff')
+    .attr('stop-opacity', 1);
+
+  // legend with color scale gradient
+  legend_g
+    .append('rect')
     .attr('x', window.innerWidth / 4 - 50)
     .attr('y', window.innerHeight / 3)
-    .attr('width', 22)
-    .attr('height', 100)
+    .attr('width', legendWidth)
+    .attr('height', legendHeight)
     .attr('fill', 'url(#gradient)');
 
-  legend_g.insert('g', '.ticks-group')
-    .attr('class', 'ticks')
-    .attr('transform', 'translate(' + 40 + ', 0)')
-    .selectAll('ticks')
-    .data(d3.ticks(0, d3.max(valueRange), 4))
-    .enter()
-    .append('text')
-    .attr('y', colorScale)
-    .text(function(d) { return d; });
+  legend_g
+    .append('g')
+    .attr('class', 'axis')
+    .attr('transform', `translate(${(window.innerWidth / 4 - 50) + 10}, ${(window.innerHeight / 3)})`)
+    .call(legendAxis);
 
 }
