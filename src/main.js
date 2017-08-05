@@ -1,8 +1,5 @@
-var d3 = require('d3');
-var topojson = require('topojson-client');
-var d3scaleChromatic = require('d3-scale-chromatic');
-
-var COLOR_SCHEME = d3.scaleSequential(d3scaleChromatic.interpolateBlues);
+const d3 = require('d3');
+const topojson = require('topojson-client');
 
 window.init = function() {
 
@@ -123,13 +120,13 @@ function drawAllBarChart() {
       .entries(data);
 
     const margin = {top: 50, right: 20, bottom: 50, left: 50},
-      width = parseInt(d3.select('#chart').style('width')) - margin.left - margin.right,
+      width = parseInt(d3.select('#chart').style('width')),
       height = parseInt(d3.select('#chart').style('height'));
 
 
     const chart = d3.select('#chart')
       .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+      .attr('height', height)
       .attr('transform', 'translate(' + window.innerWidth / 2 + ',' + margin.top + ')');
 
     const x = d3.scaleBand()
@@ -151,14 +148,14 @@ function drawAllBarChart() {
 
     chart.append('g')
       .attr('class', 'axis')
-      .attr('transform', 'translate(50, 0)')
+      .attr('transform', 'translate(50, 5)')
       .call(yAxis);
 
     // Label Y axis
     chart.append('text')
       .attr('transform', 'rotate(-90)')
       .attr('x', -125)
-      .attr('y', 60)
+      .attr('y', 50)
       .attr('dy', '1em')
       .style('font-weight', 'bold')
       .text('Total Rides');
@@ -180,7 +177,7 @@ function drawAllBarChart() {
 
 }
 
-async function drawHistogram() {
+function drawHistogram() {
 
 
 }
@@ -254,14 +251,14 @@ function renderLegend(valueRange) {
 
   const legendScale = d3.scaleLinear()
     .domain([0, d3.max(valueRange)])
-    .range([1, legendHeight]);
+    .range([0, legendHeight - 1]);
 
   // legend axis
   const legendAxis = d3.axisRight()
     .scale(legendScale)
     .tickSize(2)
     .tickFormat(function(d) {return d/1000 + 'k'})
-    .ticks(2);
+    .ticks(3);
 
   const legend_g = d3.select('#legend_g')
     .style('position', 'absolute');
