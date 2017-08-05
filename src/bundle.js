@@ -18954,6 +18954,19 @@ window.init = function() {
 
 }
 
+window.buttonPress = function(button) {
+
+  const buttons = document.getElementsByTagName('button');
+  console.log(buttons);
+  for(i = 0; i < buttons.length; i++) {
+    if(button.id === buttons[i].id) {
+      buttons[i].style.border = 'inset red';
+    } else {
+      buttons[i].style.border = '';
+    }
+  };
+}
+
 function setMarkers(marker_g, period) {
 
   const margin = {top: 50, right: 20, bottom: 50, left: 100},
@@ -18978,7 +18991,7 @@ function setMarkers(marker_g, period) {
 
     case 'all':
 
-      document.getElementById("btn-all").style.border = "inset red";
+      document.getElementById("btn-all").style.border = 'inset red';
 
       d3.json('/data/stations_all_topo', function (error, topo) {
 
@@ -18988,9 +19001,11 @@ function setMarkers(marker_g, period) {
         let totalRides = [];
         let medianAge = [];
         let medianTrip = [];
-        // Aggregate Scale Values
+        // Retrieve pertinent data
         topoFeatures.forEach(function(element) {
           totalRides.push(element.properties.total_rides);
+          medianAge.push(element.properties.median_age);
+          medianTrip.push(element.properties.median_trip_duration);
         });
 
         // const colorScale = d3.scaleSequential(COLOR_SCHEME)
@@ -19100,7 +19115,7 @@ function drawAllBarChart() {
 
 }
 
-function drawHistogram() {
+async function drawHistogram() {
 
 
 }
