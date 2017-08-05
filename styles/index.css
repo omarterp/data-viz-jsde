@@ -1,7 +1,78 @@
-body {
-  font-family: SansSerif
+
+html, body {
+  padding: 0;
+  margin: 0;
 }
 
-table th {
-  padding: 5px;
+.axis path, .axis line {
+  fill: none;
+  stroke: #eee;
+  shape-rendering: crispEdges
+}
+
+.axis text {
+  font-size: 11px
+}
+
+.bar {
+  fill: steelblue;
+  stroke: white;
+  stroke-width: 2px;
+}
+
+.bar:hover {
+  fill: grey;
+}
+
+body {
+  background-color: ghostwhite;
+  margin: 0;
+}
+
+#chart {
+  width: 50%;
+  height: 50%;
+  position: absolute;
+}
+
+#map {
+  width: 50%;
+  height: 100%;
+  position: absolute;
+}
+
+.points {
+  /*fill: red;*/
+  /*stroke: lightgrey;*/
+  stroke-width: 1px;
+}
+
+.button {
+  margin-left: 20px;
+  margin-top: 20px;
+}
+
+.zips {
+  stroke: #e5e5e5;
+  stroke-width: 1px;
+  fill: lightslategray;
+}
+
+.hidden {
+  display: none;
+}
+
+.tooltip {
+  background-color: darkslategrey;
+  padding: 7px;
+  font: 13px Saira;
+  color: white;
+  border-radius: 3px;
+  opacity: 0.9;
+  position: absolute;
+}
+
+.fa-info {
+  margin-left: 30px;
+  margin-top: 30px;
 }
