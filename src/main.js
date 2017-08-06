@@ -24,7 +24,8 @@ window.init = function() {
   drawMap();
 
   // set markers - pass in period
-  setMarkers('/data/stations_all_topo', 'all');
+  updateMarkers('/data/stations_all_topo', 'all');
+  drawAllBarChart();
 
   // Reset zoom
   // d3.timer(function() {
@@ -50,83 +51,83 @@ window.buttonPress = function(button) {
   };
 }
 
-function setMarkers(data_file, period) {
-
-  const margin = {top: 50, right: 20, bottom: 50, left: 100},
-    width = parseInt(d3.select('#map').style('width')) - margin.left - margin.right,
-    height = parseInt(d3.select('#map').style('height')) - margin.top - margin.bottom;
-
-  const projection = d3.geoMercator()
-    .center([-73.94, 40.70])
-    .scale(65000)
-    .translate([width / 2, height / 2]);
-
-  const path = d3.geoPath()
-    .projection(projection);
-
-  const tooltip = d3.select('#map_tooltip')
-    .attr('class', 'hidden tooltip');
-
-  const map = d3.select('#map');
-
-  const marker_g = d3.select('#marker_g');
-
-  // Draw points
-  switch (period) {
-
-    case 'all':
-
-      document.getElementById(buttonNames.btn_all).style.border = 'inset red';
-
-      d3.json(data_file, function (error, topo) {
-
-        // Derive scale for points styling
-        const topoFeatures = topojson.feature(topo, topo.objects.stations).features;
-
-        let totalRides = [];
-        let medianAge = [];
-        let medianTrip = [];
-        // Retrieve pertinent data
-        topoFeatures.forEach(function(element) {
-          totalRides.push(element.properties.total_rides);
-          medianAge.push(element.properties.median_age);
-          medianTrip.push(element.properties.median_trip_duration);
-        });
-
-        const colorScale = d3.scaleLinear()
-          .domain([0, d3.max(totalRides)])
-          .range(['#eff3ff', '#3182bd', '#6baed6', '#08519c'])
-
-        marker_g.selectAll('.points')
-          .data(topojson.feature(topo, topo.objects.stations).features)
-          .enter()
-          .append('path')
-          .attr('class', 'points')
-          .attr('d', path.pointRadius(2))
-          .style('fill', function(d) {return colorScale(d.properties.total_rides)})
-          .on('mousemove', function(d) {
-            var mouse = d3.mouse(map.node()).map(function(d) {
-              return parseInt(d)
-            });
-            tooltip.classed('hidden', false)
-              .attr('style', 'left:' + (mouse[0] + 10) + 'px; top:' + (mouse[1] - 20) + 'px; position:absolute;')
-              .html('station name :  ' + d.properties.station_name +
-                '<hr>' +
-                'median ride duration : ' + d.properties.median_trip_duration + ' min. <br>' +
-                'total rides : ' + d.properties.total_rides + '<br>' +
-                'median age: ' + d.properties.median_age
-              );
-          })
-          .on('mouseout', function() {
-            tooltip.classed('hidden', true);
-          });
-
-        renderLegend(totalRides);
-
-        drawAllBarChart();
-      });
-  }
-}
+// function setMarkers(data_file, period) {
+//
+//   const margin = {top: 50, right: 20, bottom: 50, left: 100},
+//     width = parseInt(d3.select('#map').style('width')) - margin.left - margin.right,
+//     height = parseInt(d3.select('#map').style('height')) - margin.top - margin.bottom;
+//
+//   const projection = d3.geoMercator()
+//     .center([-73.94, 40.70])
+//     .scale(65000)
+//     .translate([width / 2, height / 2]);
+//
+//   const path = d3.geoPath()
+//     .projection(projection);
+//
+//   const tooltip = d3.select('#map_tooltip')
+//     .attr('class', 'hidden tooltip');
+//
+//   const map = d3.select('#map');
+//
+//   const marker_g = d3.select('#marker_g');
+//
+//   // Draw points
+//   switch (period) {
+//
+//     case 'all':
+//
+//       document.getElementById(buttonNames.btn_all).style.border = 'inset red';
+//
+//       d3.json(data_file, function (error, topo) {
+//
+//         // Derive scale for points styling
+//         const topoFeatures = topojson.feature(topo, topo.objects.stations).features;
+//
+//         let totalRides = [];
+//         let medianAge = [];
+//         let medianTrip = [];
+//         // Retrieve pertinent data
+//         topoFeatures.forEach(function(element) {
+//           totalRides.push(element.properties.total_rides);
+//           medianAge.push(element.properties.median_age);
+//           medianTrip.push(element.properties.median_trip_duration);
+//         });
+//
+//         const colorScale = d3.scaleLinear()
+//           .domain([0, d3.max(totalRides)])
+//           .range(['#eff3ff', '#3182bd', '#6baed6', '#08519c'])
+//
+//         marker_g.selectAll('.points')
+//           .data(topojson.feature(topo, topo.objects.stations).features)
+//           .enter()
+//           .append('path')
+//           .attr('class', 'points')
+//           .attr('d', path.pointRadius(2))
+//           .style('fill', function(d) {return colorScale(d.properties.total_rides)})
+//           .on('mousemove', function(d) {
+//             var mouse = d3.mouse(map.node()).map(function(d) {
+//               return parseInt(d)
+//             });
+//             tooltip.classed('hidden', false)
+//               .attr('style', 'left:' + (mouse[0] + 10) + 'px; top:' + (mouse[1] - 20) + 'px; position:absolute;')
+//               .html('station name :  ' + d.properties.station_name +
+//                 '<hr>' +
+//                 'median ride duration : ' + d.properties.median_trip_duration + ' min. <br>' +
+//                 'total rides : ' + d.properties.total_rides + '<br>' +
+//                 'median age: ' + d.properties.median_age
+//               );
+//           })
+//           .on('mouseout', function() {
+//             tooltip.classed('hidden', true);
+//           });
+//
+//         renderLegend(totalRides);
+//
+//         drawAllBarChart();
+//       });
+//   }
+// }
 
 function updateMarkers(data_file) {
 
@@ -160,9 +161,9 @@ function updateMarkers(data_file) {
     let medianTrip = [];
     // Retrieve pertinent data
     topoFeatures.forEach(function (element) {
-      totalRides.push(element.properties.total_rides);
-      medianAge.push(element.properties.median_age);
-      medianTrip.push(element.properties.median_trip_duration);
+      totalRides.push(parseInt(element.properties.total_rides));
+      medianAge.push(parseInt(element.properties.median_age));
+      medianTrip.push(parseInt(element.properties.median_trip_duration));
     });
 
     const colorScale = d3.scaleLinear()
@@ -197,8 +198,14 @@ function updateMarkers(data_file) {
     d3.select('#legend_g').remove().exit();
     renderLegend(totalRides);
 
-  });
+    // Create obj of ddta sets to draw histograms
+    let dataSets = {
+      medianAge: medianAge,
+      medianTrip: medianTrip
+    };
 
+    drawHistograms(dataSets);
+  });
 }
 
 function drawAllBarChart() {
@@ -215,7 +222,9 @@ function drawAllBarChart() {
       height = parseInt(d3.select('#chart').style('height'));
 
     // chart group
-    const chart_g = d3.select("#chart").append('g').attr('id', 'chart_g');
+    const chart_g = d3.select("#chart")
+      .append('g')
+      .attr('id', 'chart_g')
 
     const chart = d3.select('#chart')
       .attr('width', width + margin.left + margin.right)
@@ -264,17 +273,88 @@ function drawAllBarChart() {
       .attr('class', 'bar')
       .attr('x', d => x(d.key))
       .attr('y', d => height - 50)
-      .attr('width', x.bandwidth() - 25)
+      .attr('width', x.bandwidth())
       .transition()
         .duration(2500)
         .delay((d, i) => i * 500)
         .attr('y', d => y(d.value))
         .attr('height', d => (height - 50) - y(d.value));
+
+    chart.selectAll('rect')
+      .append('text')
+      .attr('class', 'bar text')
+      .attr('dy', '1em')
+      .attr('x', d => x(d.key))
+      .attr('y', d => y(d.value) + 10)
+      .attr('text-anchor', 'middle')
+      .text(function(d) { return d.value });
+
   });
 
 }
 
-function drawHistogram() {
+function drawHistograms(dataSets) {
+
+  const medianAge = dataSets.medianAge;
+  const medianTrip = dataSets.medianTrip;
+
+  //svg groups
+  age_g = d3.select("#ageHist").append('g').attr('id', 'age_g');
+  trip_g = d3.select("#tripHist").append('g').attr('id', 'trip_g');
+
+  // Create canvas boundaries.  Based on split chart specified in style sheet
+  const margin = {top: 30, right: 20, bottom: 50, left: 50},
+    width = parseInt(d3.select('#ageHist').style('width')),
+    height = parseInt(d3.select('#ageHist').style('height'));
+
+  /**
+   * Create axes and appropriate scales -
+   *  Two histograms will be rendered; median age and trip duration
+   *  set the ranges
+   **/
+    // x is shared, baed on split-chart width
+  const x = d3.scaleLinear()
+    .rangeRound([0, width]);
+
+  // initiate histograms for each distribution
+  const ageHist = d3.histogram()
+    .domain(x.domain)
+    .thresholds(x.ticks(20))
+    (medianAge);
+
+  const tripHistogram = d3.histogram()
+    .domain(x.domain)
+    .thresholds(x.ticks(20))
+    (medianTrip);
+
+  // Age
+  const yA = d3.scaleLinear()
+    .domain([0, d3.max(ageHist, function(d) { return d.length })])
+    .range([height, 0]);
+
+  // Trip
+  const yT = d3.scaleLinear()
+    .domain([0, d3.max(tripHistogram, function(d) { return d.length })])
+    .range([height, 0]);
+
+  console.log(ageHist);
+  console.log(medianAge);
+  console.log(d3.range(1000).map(d3.randomBates(10)));
+  const ageBar = age_g.selectAll('.bar')
+    .data(ageHist)
+    .enter().append('g')
+    .attr('class', 'bar')
+    .attr('transform', function(d) { return `translate(${x(d.x0)}, ${yA(d.length)})`});
+
+  ageBar.append('rect')
+    .attr('x', 1)
+    .attr('width', x(ageHist[0].x1 - x(ageHist[0] - 1)))
+    .attr('height', function(d) { return height - yA(d.length); })
+
+
+
+
+
 
 
 }
@@ -332,7 +412,7 @@ function drawMap() {
     .duration(5000)
     .call(zoom.transform, d3.zoomIdentity
       .scale(3)
-      .translate(-(width / 3.5), -(height / 4)));
+      .translate(-(width / 3.5), (-(height / 4)) + 5));
 
   // return the marker group
   return marker_g;
@@ -385,7 +465,7 @@ function renderLegend(valueRange) {
   legend_g
     .append('rect')
     .attr('x', window.innerWidth / 4 - 50)
-    .attr('y', window.innerHeight / 3 + 75)
+    .attr('y', window.innerHeight / 3 + 50)
     .attr('width', legendWidth)
     .attr('height', legendHeight)
     .attr('fill', 'url(#gradient)');
@@ -393,7 +473,7 @@ function renderLegend(valueRange) {
   legend_g
     .append('g')
     .attr('class', 'axis')
-    .attr('transform', `translate(${(window.innerWidth / 4 - 50) + 10}, ${(window.innerHeight / 3 + 75)})`)
+    .attr('transform', `translate(${(window.innerWidth / 4 - 50) + 10}, ${(window.innerHeight / 3 + 50)})`)
     .call(legendAxis);
 
 }

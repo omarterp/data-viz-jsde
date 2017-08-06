@@ -16,12 +16,17 @@ html, body {
 
 .bar {
   fill: steelblue;
-  stroke: white;
+  stroke: lightslategrey;
   stroke-width: 2px;
 }
 
 .bar:hover {
   fill: grey;
+}
+
+.bar text {
+  fill: #fff;
+  font: 10px sans-serif;
 }
 
 body {
@@ -36,7 +41,7 @@ body {
 }
 
 #split-chart {
-  width: 100%;
+  width: 25%;
   height: 50%;
   position: absolute;
 }
