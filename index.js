@@ -28,16 +28,16 @@ app.get('/main.js', function(req, res) {
 
 // Data
 app.get('/data/stations_2013', function(req, res) {
-  res.sendFile(__dirname + '/data/stations_2013.csv');
+  res.sendFile(__dirname + '/data/stations_2013.topojson');
 });
 app.get('/data/stations_2014', function(req, res) {
-  res.sendFile(__dirname + '/data/stations_2014.csv');
+  res.sendFile(__dirname + '/data/stations_2014.topojson');
 });
 app.get('/data/stations_2015', function(req, res) {
-  res.sendFile(__dirname + '/data/stations_2015.csv');
+  res.sendFile(__dirname + '/data/stations_2015.topojson');
 });
 app.get('/data/stations_2016', function(req, res) {
-  res.sendFile(__dirname + '/data/stations_2016.csv');
+  res.sendFile(__dirname + '/data/stations_2016.topojson');
 });
 app.get('/data/stations_all', function(req, res) {
   res.sendFile(__dirname + '/data/stations_all.csv');
