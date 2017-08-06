@@ -2,6 +2,15 @@
 html, body {
   padding: 0;
   margin: 0;
+  background-color: ghostwhite;
+  margin: 0;
+}
+
+.topbar {
+  position: fixed;
+  top:0;
+  z-index: 10;
+  background-color:rgba(255, 255, 255, 0);
 }
 
 .axis path, .axis line {
@@ -16,7 +25,7 @@ html, body {
 
 .bar {
   fill: steelblue;
-  stroke: lightslategrey;
+  stroke: white;
   stroke-width: 2px;
 }
 
@@ -25,13 +34,9 @@ html, body {
 }
 
 .bar text {
-  fill: #fff;
+  fill: ghostwhite;
   font: 10px sans-serif;
-}
-
-body {
-  background-color: ghostwhite;
-  margin: 0;
+  font-weight: normal;
 }
 
 #chart {
@@ -40,8 +45,8 @@ body {
   position: absolute;
 }
 
-#split-chart {
-  width: 25%;
+#hist {
+  width: 50%;
   height: 50%;
   position: absolute;
 }

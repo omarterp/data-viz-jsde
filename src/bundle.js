@@ -17447,10 +17447,8 @@ window.init = function() {
   updateMarkers('/data/stations_all_topo', 'all');
   drawAllBarChart();
 
-  // Reset zoom
-  // d3.timer(function() {
-  //   svg.call(zoom.transform, d3.zoomIdentity);
-  // }, 10000);
+  // set active button
+  document.getElementById("btn_all").style.border = 'inset red';
 
 }
 
@@ -17471,83 +17469,6 @@ window.buttonPress = function(button) {
   };
 }
 
-// function setMarkers(data_file, period) {
-//
-//   const margin = {top: 50, right: 20, bottom: 50, left: 100},
-//     width = parseInt(d3.select('#map').style('width')) - margin.left - margin.right,
-//     height = parseInt(d3.select('#map').style('height')) - margin.top - margin.bottom;
-//
-//   const projection = d3.geoMercator()
-//     .center([-73.94, 40.70])
-//     .scale(65000)
-//     .translate([width / 2, height / 2]);
-//
-//   const path = d3.geoPath()
-//     .projection(projection);
-//
-//   const tooltip = d3.select('#map_tooltip')
-//     .attr('class', 'hidden tooltip');
-//
-//   const map = d3.select('#map');
-//
-//   const marker_g = d3.select('#marker_g');
-//
-//   // Draw points
-//   switch (period) {
-//
-//     case 'all':
-//
-//       document.getElementById(buttonNames.btn_all).style.border = 'inset red';
-//
-//       d3.json(data_file, function (error, topo) {
-//
-//         // Derive scale for points styling
-//         const topoFeatures = topojson.feature(topo, topo.objects.stations).features;
-//
-//         let totalRides = [];
-//         let medianAge = [];
-//         let medianTrip = [];
-//         // Retrieve pertinent data
-//         topoFeatures.forEach(function(element) {
-//           totalRides.push(element.properties.total_rides);
-//           medianAge.push(element.properties.median_age);
-//           medianTrip.push(element.properties.median_trip_duration);
-//         });
-//
-//         const colorScale = d3.scaleLinear()
-//           .domain([0, d3.max(totalRides)])
-//           .range(['#eff3ff', '#3182bd', '#6baed6', '#08519c'])
-//
-//         marker_g.selectAll('.points')
-//           .data(topojson.feature(topo, topo.objects.stations).features)
-//           .enter()
-//           .append('path')
-//           .attr('class', 'points')
-//           .attr('d', path.pointRadius(2))
-//           .style('fill', function(d) {return colorScale(d.properties.total_rides)})
-//           .on('mousemove', function(d) {
-//             var mouse = d3.mouse(map.node()).map(function(d) {
-//               return parseInt(d)
-//             });
-//             tooltip.classed('hidden', false)
-//               .attr('style', 'left:' + (mouse[0] + 10) + 'px; top:' + (mouse[1] - 20) + 'px; position:absolute;')
-//               .html('station name :  ' + d.properties.station_name +
-//                 '<hr>' +
-//                 'median ride duration : ' + d.properties.median_trip_duration + ' min. <br>' +
-//                 'total rides : ' + d.properties.total_rides + '<br>' +
-//                 'median age: ' + d.properties.median_age
-//               );
-//           })
-//           .on('mouseout', function() {
-//             tooltip.classed('hidden', true);
-//           });
-//
-//         renderLegend(totalRides);
-//
-//         drawAllBarChart();
-//       });
-//   }
-// }
 
 function updateMarkers(data_file) {
 
@@ -17563,7 +17484,8 @@ function updateMarkers(data_file) {
   const path = d3.geoPath()
     .projection(projection);
 
-  const tooltip = d3.select('#map_tooltip');
+  const tooltip = d3.select('#map_tooltip')
+    .attr('class', 'hidden tooltip');
 
   const map = d3.select('#map');
 
@@ -17618,13 +17540,8 @@ function updateMarkers(data_file) {
     d3.select('#legend_g').remove().exit();
     renderLegend(totalRides);
 
-    // Create obj of ddta sets to draw histograms
-    let dataSets = {
-      medianAge: medianAge,
-      medianTrip: medianTrip
-    };
-
-    drawHistograms(dataSets);
+    // median trip histogram
+    drawHistogram(medianTrip);
   });
 }
 
@@ -17640,11 +17557,6 @@ function drawAllBarChart() {
     const margin = {top: 30, right: 20, bottom: 50, left: 50},
       width = parseInt(d3.select('#chart').style('width')),
       height = parseInt(d3.select('#chart').style('height'));
-
-    // chart group
-    const chart_g = d3.select("#chart")
-      .append('g')
-      .attr('id', 'chart_g')
 
     const chart = d3.select('#chart')
       .attr('width', width + margin.left + margin.right)
@@ -17686,7 +17598,17 @@ function drawAllBarChart() {
       .style('font-weight', 'bold')
       .text('Total Rides');
 
+    // Label Y axis
+    chart.append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('x', -125)
+      .attr('y', 50)
+      .attr('dy', '1em')
+      .style('font-weight', 'bold')
+      .text('Total Rides');
+
     chart.selectAll('rect')
+      .append('g')
       .data(yearRideCount)
       .enter()
       .append('rect')
@@ -17695,37 +17617,39 @@ function drawAllBarChart() {
       .attr('y', d => height - 50)
       .attr('width', x.bandwidth())
       .transition()
-        .duration(2500)
-        .delay((d, i) => i * 500)
-        .attr('y', d => y(d.value))
-        .attr('height', d => (height - 50) - y(d.value));
+      .duration(2500)
+      .delay((d, i) => i * 500)
+      .attr('y', d => y(d.value))
+      .attr('height', d => (height - 50) - y(d.value));
 
-    chart.selectAll('rect')
+    chart.append('g')
+      .attr('id', 'bar_text_g');
+
+    chart.select("#bar_text_g").selectAll('text')
+      .data(yearRideCount)
+      .enter()
       .append('text')
       .attr('class', 'bar text')
       .attr('dy', '1em')
-      .attr('x', d => x(d.key))
+      .attr('x', d => x(d.key) + (x.bandwidth() / 3))
       .attr('y', d => y(d.value) + 10)
-      .attr('text-anchor', 'middle')
+      .style('font-weight', 'normal')
       .text(function(d) { return d.value });
-
   });
 
 }
 
-function drawHistograms(dataSets) {
-
-  const medianAge = dataSets.medianAge;
-  const medianTrip = dataSets.medianTrip;
-
-  //svg groups
-  age_g = d3.select("#ageHist").append('g').attr('id', 'age_g');
-  trip_g = d3.select("#tripHist").append('g').attr('id', 'trip_g');
+function drawHistogram(medianTrip) {
 
   // Create canvas boundaries.  Based on split chart specified in style sheet
   const margin = {top: 30, right: 20, bottom: 50, left: 50},
-    width = parseInt(d3.select('#ageHist').style('width')),
-    height = parseInt(d3.select('#ageHist').style('height'));
+    width = parseInt(d3.select('#hist').style('width')),
+    height = parseInt(d3.select('#hist').style('height'));
+
+  const hist = d3.select('#hist')
+    .attr('width', width + margin.left + margin.right)
+    .attr('height', height)
+    .attr('transform', `translate(${window.innerWidth / 2}, ${window.innerWidth / 2})`);
 
   /**
    * Create axes and appropriate scales -
@@ -17734,48 +17658,45 @@ function drawHistograms(dataSets) {
    **/
     // x is shared, baed on split-chart width
   const x = d3.scaleLinear()
-    .rangeRound([0, width]);
+    .domain([d3.min(medianTrip), d3.max(medianTrip)])
+    .rangeRound([0, width / 2]);
 
-  // initiate histograms for each distribution
-  const ageHist = d3.histogram()
-    .domain(x.domain)
-    .thresholds(x.ticks(20))
-    (medianAge);
-
-  const tripHistogram = d3.histogram()
-    .domain(x.domain)
-    .thresholds(x.ticks(20))
+  // initiate histogram
+  const trips = d3.histogram()
+    .domain(x.domain())
+    .thresholds(x.ticks(10))
     (medianTrip);
 
-  // Age
-  const yA = d3.scaleLinear()
-    .domain([0, d3.max(ageHist, function(d) { return d.length })])
+  // Set y scale
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(trips, function(d) { return d.length })])
     .range([height, 0]);
 
-  // Trip
-  const yT = d3.scaleLinear()
-    .domain([0, d3.max(tripHistogram, function(d) { return d.length })])
-    .range([height, 0]);
+  console.log(trips);
+  console.log(medianTrip);
 
-  console.log(ageHist);
-  console.log(medianAge);
-  console.log(d3.range(1000).map(d3.randomBates(10)));
-  const ageBar = age_g.selectAll('.bar')
-    .data(ageHist)
+  const bar = hist.selectAll('.bar')
+    .data(trips)
     .enter().append('g')
     .attr('class', 'bar')
-    .attr('transform', function(d) { return `translate(${x(d.x0)}, ${yA(d.length)})`});
+    .attr('transform', function(d) { return `translate(${x(d.x0)}, ${y(d.length)})`});
 
-  ageBar.append('rect')
+  bar.append('rect')
     .attr('x', 1)
-    .attr('width', x(ageHist[0].x1 - x(ageHist[0] - 1)))
-    .attr('height', function(d) { return height - yA(d.length); })
+    .attr('width', x(trips[0].x1 - x(trips[0].x0) - 1))
+    .attr('height', function(d) { return height - y(d.length); });
 
+  bar.append('text')
+    .attr('dy', '.75em')
+    .attr('y', 6)
+    .attr('x', (x(trips[0].x1) - x(trips[0].x0)) / 2)
+    .attr('text-anchor', 'middle')
+    .text(function(d) { return d.length; });
 
-
-
-
-
+  bar.append('g')
+    .attr('class', 'axis axis--x')
+    .attr('transform', 'translate(0,' + height + ')')
+    .call(d3.axisBottom(x));
 
 }
 
