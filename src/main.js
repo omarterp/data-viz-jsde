@@ -1,13 +1,30 @@
 const d3 = require('d3');
 const topojson = require('topojson-client');
 
+
+var buttonData = {
+  btn_2013: '/data/stations_2013',
+  btn_2014: '/data/stations_2014',
+  btn_2015: '/data/stations_2015',
+  btn_2016: '/data/stations_2016',
+  btn_all: '/data/stations_all_topo',
+}
+
+var buttonNames = {
+  btn_2013: 'btn_2013',
+  btn_2014: 'btn_2014',
+  btn_2015: 'btn_2014',
+  btn_2016: 'btn_2014',
+  btn_all: 'btn_all',
+}
+
 window.init = function() {
 
   // Draw Map which will sit behind the points.
-  const marker_g = drawMap();
+  drawMap();
 
   // set markers - pass in period
-  setMarkers(marker_g, 'all');
+  setMarkers('/data/stations_all_topo', 'all');
 
   // Reset zoom
   // d3.timer(function() {
@@ -19,17 +36,21 @@ window.init = function() {
 window.buttonPress = function(button) {
 
   const buttons = document.getElementsByTagName('button');
-  console.log(buttons);
+
   for(i = 0; i < buttons.length; i++) {
     if(button.id === buttons[i].id) {
-      buttons[i].style.border = 'inset red';
+      let button = buttons[i];
+      button.style.border = 'inset red';
+      if(button.id in buttonData) {
+        updateMarkers(buttonData[button.id])
+      }
     } else {
       buttons[i].style.border = '';
     }
   };
 }
 
-function setMarkers(marker_g, period) {
+function setMarkers(data_file, period) {
 
   const margin = {top: 50, right: 20, bottom: 50, left: 100},
     width = parseInt(d3.select('#map').style('width')) - margin.left - margin.right,
@@ -43,19 +64,21 @@ function setMarkers(marker_g, period) {
   const path = d3.geoPath()
     .projection(projection);
 
-  const tooltip = d3.select('#tooltip')
+  const tooltip = d3.select('#map_tooltip')
     .attr('class', 'hidden tooltip');
 
-  const svg = d3.selectAll('#map');
+  const map = d3.select('#map');
+
+  const marker_g = d3.select('#marker_g');
 
   // Draw points
   switch (period) {
 
     case 'all':
 
-      document.getElementById("btn-all").style.border = 'inset red';
+      document.getElementById(buttonNames.btn_all).style.border = 'inset red';
 
-      d3.json('/data/stations_all_topo', function (error, topo) {
+      d3.json(data_file, function (error, topo) {
 
         // Derive scale for points styling
         const topoFeatures = topojson.feature(topo, topo.objects.stations).features;
@@ -70,14 +93,9 @@ function setMarkers(marker_g, period) {
           medianTrip.push(element.properties.median_trip_duration);
         });
 
-        // const colorScale = d3.scaleSequential(COLOR_SCHEME)
-        //   .domain([0, d3.max(totalRides)]);
-
         const colorScale = d3.scaleLinear()
           .domain([0, d3.max(totalRides)])
           .range(['#eff3ff', '#3182bd', '#6baed6', '#08519c'])
-
-        renderLegend(totalRides);
 
         marker_g.selectAll('.points')
           .data(topojson.feature(topo, topo.objects.stations).features)
@@ -87,7 +105,7 @@ function setMarkers(marker_g, period) {
           .attr('d', path.pointRadius(2))
           .style('fill', function(d) {return colorScale(d.properties.total_rides)})
           .on('mousemove', function(d) {
-            var mouse = d3.mouse(svg.node()).map(function(d) {
+            var mouse = d3.mouse(map.node()).map(function(d) {
               return parseInt(d)
             });
             tooltip.classed('hidden', false)
@@ -103,11 +121,84 @@ function setMarkers(marker_g, period) {
             tooltip.classed('hidden', true);
           });
 
-        renderLegend(marker_g, totalRides);
+        renderLegend(totalRides);
 
         drawAllBarChart();
       });
   }
+}
+
+function updateMarkers(data_file) {
+
+  const margin = {top: 50, right: 20, bottom: 50, left: 100},
+    width = parseInt(d3.select('#map').style('width')) - margin.left - margin.right,
+    height = parseInt(d3.select('#map').style('height')) - margin.top - margin.bottom;
+
+  const projection = d3.geoMercator()
+    .center([-73.94, 40.70])
+    .scale(65000)
+    .translate([width / 2, height / 2]);
+
+  const path = d3.geoPath()
+    .projection(projection);
+
+  const tooltip = d3.select('#map_tooltip');
+
+  const map = d3.select('#map');
+
+  const marker_g = d3.select('#marker_g');
+
+  marker_g.selectAll('.points').remove();
+
+  d3.json(data_file, function (error, topo) {
+
+    // Derive scale for points styling
+    const topoFeatures = topojson.feature(topo, topo.objects.stations).features;
+
+    let totalRides = [];
+    let medianAge = [];
+    let medianTrip = [];
+    // Retrieve pertinent data
+    topoFeatures.forEach(function (element) {
+      totalRides.push(element.properties.total_rides);
+      medianAge.push(element.properties.median_age);
+      medianTrip.push(element.properties.median_trip_duration);
+    });
+
+    const colorScale = d3.scaleLinear()
+      .domain([0, d3.max(totalRides)])
+      .range(['#eff3ff', '#3182bd', '#6baed6', '#08519c'])
+
+    marker_g.selectAll('.points')
+      .data(topojson.feature(topo, topo.objects.stations).features)
+      .enter()
+      .append('path')
+      .attr('class', 'points')
+      .attr('d', path.pointRadius(2))
+      .style('fill', function(d) {return colorScale(d.properties.total_rides)})
+      .on('mousemove', function(d) {
+        var mouse = d3.mouse(map.node()).map(function(d) {
+          return parseInt(d)
+        });
+        tooltip.classed('hidden', false)
+          .attr('style', 'left:' + (mouse[0] + 10) + 'px; top:' + (mouse[1] - 20) + 'px; position:absolute;')
+          .html('station name :  ' + d.properties.station_name +
+            '<hr>' +
+            'median ride duration : ' + d.properties.median_trip_duration + ' min. <br>' +
+            'total rides : ' + d.properties.total_rides + '<br>' +
+            'median age: ' + d.properties.median_age
+          );
+      })
+      .on('mouseout', function() {
+        tooltip.classed('hidden', true);
+      });
+
+    // remove legend and re-render
+    d3.select('#legend_g').remove().exit();
+    renderLegend(totalRides);
+
+  });
+
 }
 
 function drawAllBarChart() {
@@ -119,15 +210,17 @@ function drawAllBarChart() {
       .rollup(d => parseInt(d3.sum(d, leaf => leaf.total_rides)))
       .entries(data);
 
-    const margin = {top: 50, right: 20, bottom: 50, left: 50},
+    const margin = {top: 30, right: 20, bottom: 50, left: 50},
       width = parseInt(d3.select('#chart').style('width')),
       height = parseInt(d3.select('#chart').style('height'));
 
+    // chart group
+    const chart_g = d3.select("#chart").append('g').attr('id', 'chart_g');
 
     const chart = d3.select('#chart')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height)
-      .attr('transform', 'translate(' + window.innerWidth / 2 + ',' + margin.top + ')');
+      .attr('transform', `translate(${window.innerWidth / 2}, 10)`);
 
     const x = d3.scaleBand()
       .domain(yearRideCount.map(d => d.key))
@@ -135,11 +228,15 @@ function drawAllBarChart() {
       .padding(0.1);
 
     const y = d3.scaleLinear()
-      .domain([0, d3.max(yearRideCount, d => d.value)])
+      .domain([0, d3.max(yearRideCount, d => d.value) + 500000])
       .range([height - 50, 0]);
 
     const xAxis = d3.axisBottom().scale(x);
-    const yAxis = d3.axisLeft().scale(y).tickFormat(function(d) {return d/10000 + 'k'})
+    const yAxis = d3.axisLeft().scale(y).tickFormat(function(d) {return d/1000000 + 'M'});
+
+    // chart tooltip
+    const tooltip = d3.select('#chart_tooltip')
+      .attr('class', 'hidden tooltip');
 
     chart.append('g')
       .attr('class', 'axis')
@@ -148,7 +245,7 @@ function drawAllBarChart() {
 
     chart.append('g')
       .attr('class', 'axis')
-      .attr('transform', 'translate(50, 5)')
+      .attr('transform', 'translate(50, 0)')
       .call(yAxis);
 
     // Label Y axis
@@ -169,8 +266,8 @@ function drawAllBarChart() {
       .attr('y', d => height - 50)
       .attr('width', x.bandwidth() - 25)
       .transition()
-        .delay((d, i) => i * 20)
         .duration(2500)
+        .delay((d, i) => i * 500)
         .attr('y', d => y(d.value))
         .attr('height', d => (height - 50) - y(d.value));
   });
@@ -219,8 +316,6 @@ function drawMap() {
   const poly_g = transform_g.append('g').attr('id','poly_g');
   // group for markers, on top
   const marker_g = transform_g.append('g').attr('id','marker_g');
-  // group for legend, on top
-  const legend_g = transform_g.append('g').attr('id','legend_g');
 
   d3.json('/data/nyc-zip-polys', function(error, topo) {
 
@@ -243,25 +338,28 @@ function drawMap() {
   return marker_g;
 }
 
+// Build Legend
 function renderLegend(valueRange) {
 
+  // add legend group to transform group
+  const transform_g = d3.select('#transform_g');
+
+  const legend_g = transform_g.append('g').attr('id', 'legend_g')
+    .style('position', 'absolute');
+
   const legendWidth = 10,
-    legendHeight = 50,
-    margin = {top: 10, bottom: 10, left: 10, right: 20};
+    legendHeight = 50
 
   const legendScale = d3.scaleLinear()
-    .domain([0, d3.max(valueRange)])
+    .domain([d3.min(valueRange), d3.max(valueRange)])
     .range([0, legendHeight - 1]);
 
   // legend axis
   const legendAxis = d3.axisRight()
     .scale(legendScale)
-    .tickSize(2)
+    .tickSize(1)
     .tickFormat(function(d) {return d/1000 + 'k'})
     .ticks(3);
-
-  const legend_g = d3.select('#legend_g')
-    .style('position', 'absolute');
 
   const gradient = legend_g
     .append('linearGradient')
@@ -287,7 +385,7 @@ function renderLegend(valueRange) {
   legend_g
     .append('rect')
     .attr('x', window.innerWidth / 4 - 50)
-    .attr('y', window.innerHeight / 3)
+    .attr('y', window.innerHeight / 3 + 75)
     .attr('width', legendWidth)
     .attr('height', legendHeight)
     .attr('fill', 'url(#gradient)');
@@ -295,7 +393,7 @@ function renderLegend(valueRange) {
   legend_g
     .append('g')
     .attr('class', 'axis')
-    .attr('transform', `translate(${(window.innerWidth / 4 - 50) + 10}, ${(window.innerHeight / 3)})`)
+    .attr('transform', `translate(${(window.innerWidth / 4 - 50) + 10}, ${(window.innerHeight / 3 + 75)})`)
     .call(legendAxis);
 
 }

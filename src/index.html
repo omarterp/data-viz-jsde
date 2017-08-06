@@ -14,23 +14,28 @@
 </head>
 <body>
 
-  <div class="row">
+  <div id="header" class="row" style="background: white">
       <i class="far fa-info" onmouseover="showAbout(this)" onmouseout="closeAbout(this)"></i>
-      <button id="btn-2013" type="button" class="btn btn-outline-primary" style="margin-left: 5px;margin-top: 5px" onclick="buttonPress(this)">2013</button>
-      <button id="btn-2014" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">2014</button>
-      <button id="btn-2015" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">2015</button>
-      <button id="btn-2016" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">2016</button>
-      <button id="btn-all" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">All</button>
+      <button id="btn_2013" type="button" class="btn btn-outline-primary" style="margin-left: 5px;margin-top: 5px" onclick="buttonPress(this)">2013</button>
+      <button id="btn_2014" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">2014</button>
+      <button id="btn_2015" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">2015</button>
+      <button id="btn_2016" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">2016</button>
+      <button id="btn_all" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">All</button>
   </div>
 
   <div class="row">
     <div class=".col-md-6">
       <svg id="map"></svg>
-      <div id="tooltip"></div>
+      <div id="map_tooltip"></div>
     </div>
   </div>
 
-  <svg id="chart"></svg>
+  <div class="row">
+    <div class=".col-md-6">
+      <svg id="chart"></svg>
+      <div id="chart_tooltip"></div>
+    </div>
+  </div>
 
   <script>init()</script>
 
