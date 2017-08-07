@@ -1,0 +1,81 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>CitiBike NYC Viz Info</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+
+  <link rel="stylesheet" href="../styles/index.css">
+  <link href="https://fonts.googleapis.com/css?family=Saira" rel="stylesheet">
+
+  <!--[if lt IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+
+<h1>CitiBike NYC Info</h1>
+
+
+<h3>::: Overview :::</h3>
+
+<p>
+  CitiBike data consists of summarized data from the years of 2013 through 2016.  The data was obtained from Google
+  Big Query.  A data set was created an a storage bucket was created to sink the data.  From there the data was
+  pulled into R Studio for data preparation.
+
+  The amount of bike stations throughout NYC has more than doubled since 2013.  Starting with nearly 300, there are
+  now more than 600 stations, with over 9M rides originating last year.  The hot spot is in and around midtown.  From
+  tourists to locals, commuting to and fro from work.  Ride times increase as you move out from this epicenter.  There
+  is also a formidable traffic near Central Park and downtown.  It's a great way to get around town and stay green!
+</p>
+
+<h3>::: Data Prep :::</h3>
+<p>
+  As previously mentioned the data was extracted from a Public data set located in Google Big Query.  Once downloaded
+  the data set was prepared with tidyverse, a data preparation and visualization package, in R.  The data includes
+  geo-spatial coordinates, therefore a d3 map fun was to be had.  I tracked down a geojson file for NYC and then
+  created geojson files for each year of data within R.  Files were then converted to topojson with node and the
+  d3 topojson client was leveraged to extract the features.  This is a great capability to store your geo data along
+  side with the various properties that can be whatever you'd like.  In this case, summary statistics around the rides
+  and bike stations - { station name, total rides, mean trip duration, mean age, last ride year, capacity and mean
+  bikes disabled }.
+</p>
+
+<h2>~ Scenes ~</h2>
+
+<p>
+  Scenes include a cycling through the years of data using sleeps via Promises.  There is an issue with button's borders
+  being properly set, though you can see the growth of stations over time.  There are even stations that are removed
+  from one year to the next.  See 2015 to 2016 near the legend.  You will see a station drop off.
+</p>
+
+<h2>~ Annotations ~</h2>
+
+<p>
+  On-demand detail is available from the map giving details around each station.
+</p>
+
+<h2>~ Parameters ~</h2>
+
+<p>
+  Parameters are the ride years, which are in the form of buttons.  All years summarized and each year is available
+  for discovery.
+</p>
+
+<h2>~ Triggers ~</h2>
+
+<p>
+  The html buttons provide triggers for user interaction to pass in a given year as a parameter to render the stations
+  in operation at that time and the various on-demand details.  Zooming is also available to get a closer look at
+  the packed density of th stations - quite impressive how many stations there are.  This is a popular service
+  no doubt.  I wouldn't dare get on a bike in NYC! =)
+</p>
+
+
+</body>
+</html>

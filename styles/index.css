@@ -25,29 +25,17 @@ html, body {
 
 .bar {
   fill: steelblue;
-  stroke: white;
-  stroke-width: 2px;
+  font: 10px sans-serif;
+  font-weight: normal;
 }
 
 .bar:hover {
   fill: grey;
 }
 
-.bar text {
-  fill: ghostwhite;
-  font: 10px sans-serif;
-  font-weight: normal;
-}
-
 #chart {
   width: 50%;
-  height: 50%;
-  position: absolute;
-}
-
-#hist {
-  width: 50%;
-  height: 50%;
+  height: 100%;
   position: absolute;
 }
 
@@ -58,8 +46,6 @@ html, body {
 }
 
 .points {
-  /*fill: red;*/
-  /*stroke: lightgrey;*/
   stroke-width: 1px;
 }
 

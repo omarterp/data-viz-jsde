@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,30 +13,42 @@
 </head>
 <body>
 
-  <div id="header" class="row topbar" style="background: ghostwhite">
-      <i class="far fa-info" onmouseover="showAbout(this)" onmouseout="closeAbout(this)"></i>
-      <button id="btn_2013" type="button" class="btn btn-outline-primary" style="margin-left: 5px;margin-top: 5px" onclick="buttonPress(this)">2013</button>
-      <button id="btn_2014" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">2014</button>
-      <button id="btn_2015" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">2015</button>
-      <button id="btn_2016" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">2016</button>
-      <button id="btn_all" type="button" class="btn btn-outline-primary" style="margin-top: 5px" onclick="buttonPress(this)">All</button>
-  </div>
 
-  <div class="row">
-    <div class=".col-md-6">
-      <svg id="map"></svg>
-      <div id="map_tooltip"></div>
-    </div>
-  </div>
+<div id="header" class="row topbar" style="background: ghostwhite">
+      <span onclick="openInfo()">
+        <i class="far fa-info" onclick="/info.html"></i>
+      </span>
+  <button id="btn_2013" type="button" class="btn btn-outline-primary" style="margin-left: 5px;margin-top: 5px"
+          onclick="buttonPress(this)">2013
+  </button>
+  <button id="btn_2014" type="button" class="btn btn-outline-primary" style="margin-top: 5px"
+          onclick="buttonPress(this)">2014
+  </button>
+  <button id="btn_2015" type="button" class="btn btn-outline-primary" style="margin-top: 5px"
+          onclick="buttonPress(this)">2015
+  </button>
+  <button id="btn_2016" type="button" class="btn btn-outline-primary" style="margin-top: 5px"
+          onclick="buttonPress(this)">2016
+  </button>
+  <button id="btn_all" type="button" class="btn btn-outline-primary" style="margin-top: 5px"
+          onclick="buttonPress(this)">All
+  </button>
+</div>
 
-  <div class="row">
-    <div class=".col-md-6">
-      <svg id="chart"></svg>
-      <svg id="hist"></svg>
-    </div>
+<div class="row">
+  <div class=".col-md-6">
+    <svg id="map"></svg>
+    <div id="map_tooltip"></div>
   </div>
+</div>
 
-  <script>init()</script>
+<div class="row">
+  <div class=".col-md-6">
+    <svg id="chart"></svg>
+  </div>
+</div>
+
+<script>init()</script>
 
 </body>
 </html>

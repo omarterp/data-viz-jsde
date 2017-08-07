@@ -17,8 +17,8 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/src/index.html');
 });
 
-app.get('/test', function(req, res) {
-  res.sendFile(__dirname + '/src/test.html');
+app.get('/info', function(req, res) {
+  res.sendFile(__dirname + '/src/info.html');
 });
 
 // Map

@@ -18,19 +18,68 @@ var buttonNames = {
   btn_all: 'btn_all',
 }
 
-window.init = function() {
+window.init = function () {
+
+  // Open Info Page
+  window.open('/info', 'Citbike Info');
 
   // Draw Map which will sit behind the points.
   drawMap();
 
-  // set markers - pass in period
-  updateMarkers('/data/stations_all_topo', 'all');
   drawAllBarChart();
 
+  playScenes();
+
+  //updateMarkers('/data/stations_all_topo', 'all');
+
   // set active button
-  document.getElementById("btn_all").style.border = 'inset red';
+  //document.getElementById("btn_all").style.border = 'inset red';
 
 }
+
+function playScenes() {
+  /*** Cycle through Scenes ***/
+
+  // set active button
+  document.getElementById(buttonNames.btn_2013).style.border = 'inset red';
+  updateMarkers(buttonData.btn_2013);
+
+  // Usage!
+  sleep(5000).then(() => {
+    // set active button
+    document.getElementById(buttonNames.btn_2013).style.border = '';
+    document.getElementById(buttonNames.btn_2014).style.border = 'inset red';
+    updateMarkers(buttonData.btn_2014);
+
+    sleep(3000).then(() => {
+      // set active button
+      document.getElementById(buttonNames.btn_2014).style.border = '';
+      document.getElementById(buttonNames.btn_2015).style.border = 'inset red';
+      updateMarkers(buttonData.btn_2015);
+
+      sleep(3000).then(() => {
+        // set active button
+        document.getElementById(buttonNames.btn_2015).style.border = '';
+        document.getElementById(buttonNames.btn_2016).style.border = 'inset red';
+        updateMarkers(buttonData.btn_2016);
+
+        sleep(3000).then(() => {
+
+          // set active button
+          document.getElementById(buttonNames.btn_2016).style.border = '';
+          document.getElementById(buttonNames.btn_all).style.border = 'inset red';
+          updateMarkers(buttonData.btn_all);
+        });
+      });
+    });
+  });
+}
+
+// https://zeit.co/blog/async-and-await
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
 
 window.buttonPress = function(button) {
 
@@ -47,6 +96,11 @@ window.buttonPress = function(button) {
       buttons[i].style.border = '';
     }
   };
+}
+
+// Open Info Page
+window.openInfo = function() {
+  window.open('/info', 'Citbike Info');
 }
 
 
@@ -107,9 +161,12 @@ function updateMarkers(data_file) {
           .attr('style', 'left:' + (mouse[0] + 10) + 'px; top:' + (mouse[1] - 20) + 'px; position:absolute;')
           .html('station name :  ' + d.properties.station_name +
             '<hr>' +
-            'median ride duration : ' + d.properties.median_trip_duration + ' min. <br>' +
+            'mean ride duration : ' + d.properties.mean_trip_duration + ' min. <br>' +
+            'mean bikes disabled : ' + d.properties.avg_bikes_disabled + '<br>' +
+            'last ride year : ' + d.properties.last_ride_year + '<br>' +
             'total rides : ' + d.properties.total_rides + '<br>' +
-            'median age: ' + d.properties.median_age
+            'mean age: ' + d.properties.mean_age + '<br>' +
+            'capacity : ' + d.properties.max_capacity
           );
       })
       .on('mouseout', function() {
@@ -121,7 +178,7 @@ function updateMarkers(data_file) {
     renderLegend(totalRides);
 
     // median trip histogram
-    drawHistogram(medianTrip);
+    // drawHistogram(medianTrip);
   });
 }
 
@@ -155,10 +212,6 @@ function drawAllBarChart() {
     const xAxis = d3.axisBottom().scale(x);
     const yAxis = d3.axisLeft().scale(y).tickFormat(function(d) {return d/1000000 + 'M'});
 
-    // chart tooltip
-    const tooltip = d3.select('#chart_tooltip')
-      .attr('class', 'hidden tooltip');
-
     chart.append('g')
       .attr('class', 'axis')
       .attr('transform', `translate(0, ${height - 50})`)
@@ -168,15 +221,6 @@ function drawAllBarChart() {
       .attr('class', 'axis')
       .attr('transform', 'translate(50, 0)')
       .call(yAxis);
-
-    // Label Y axis
-    chart.append('text')
-      .attr('transform', 'rotate(-90)')
-      .attr('x', -125)
-      .attr('y', 50)
-      .attr('dy', '1em')
-      .style('font-weight', 'bold')
-      .text('Total Rides');
 
     // Label Y axis
     chart.append('text')
@@ -209,17 +253,15 @@ function drawAllBarChart() {
       .data(yearRideCount)
       .enter()
       .append('text')
-      .attr('class', 'bar text')
       .attr('dy', '1em')
       .attr('x', d => x(d.key) + (x.bandwidth() / 3))
       .attr('y', d => y(d.value) + 10)
-      .style('font-weight', 'normal')
       .text(function(d) { return d.value });
   });
 
 }
 
-function drawHistogram(medianTrip) {
+/*function drawHistogram(medianTrip) {
 
   // Create canvas boundaries.  Based on split chart specified in style sheet
   const margin = {top: 30, right: 20, bottom: 50, left: 50},
@@ -229,14 +271,10 @@ function drawHistogram(medianTrip) {
   const hist = d3.select('#hist')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height)
-    .attr('transform', `translate(${window.innerWidth / 2}, ${window.innerWidth / 2})`);
+    .attr('transform', `translate(${(window.innerWidth / 2) + margin.left + margin.right},
+      ${(window.innerHeight / 2)})`);
 
-  /**
-   * Create axes and appropriate scales -
-   *  Two histograms will be rendered; median age and trip duration
-   *  set the ranges
-   **/
-    // x is shared, baed on split-chart width
+   //Create axes and appropriate scales -
   const x = d3.scaleLinear()
     .domain([d3.min(medianTrip), d3.max(medianTrip)])
     .rangeRound([0, width / 2]);
@@ -263,8 +301,22 @@ function drawHistogram(medianTrip) {
 
   bar.append('rect')
     .attr('x', 1)
-    .attr('width', x(trips[0].x1 - x(trips[0].x0) - 1))
+    .attr('width', x((trips[0].x1 - x(trips[0].x0)) - 1))
     .attr('height', function(d) { return height - y(d.length); });
+
+  // Label Frequency
+  hist.append('g')
+    .attr('id', 'hist_text_g');
+
+  hist.select("#hist_text_g").selectAll('text')
+    .data(yearRideCount)
+    .enter()
+    .append('text')
+    .attr('dy', '1em')
+    .attr('x', d => x(d.key) + (x.bandwidth() / 3))
+    .attr('y', d => y(d.value) + 10)
+    .text(function(d) { return d.value });
+
 
   bar.append('text')
     .attr('dy', '.75em')
@@ -278,7 +330,7 @@ function drawHistogram(medianTrip) {
     .attr('transform', 'translate(0,' + height + ')')
     .call(d3.axisBottom(x));
 
-}
+}*/
 
 function drawMap() {
 
